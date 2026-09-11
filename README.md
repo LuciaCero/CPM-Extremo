@@ -242,7 +242,7 @@ Cada ejecución produce cuatro archivos en `output/<nombre_del_excel>/`:
 
 ### El informe `output_pert.txt`
 
-Es un documento LaTeX autónomo (clase `llncs`, con `tikz` y `pgfplots`) que incluye, **para cada iteración del algoritmo**:
+Es un documento LaTeX completo (clase `llncs`, con `tikz` y `pgfplots`) que incluye, **para cada iteración del algoritmo**:
 
 - Tabla de datos de las actividades: `Dn`, `De`, `Cn`, `Ce`, pendientes y dependencias.
 - Parámetros de coste indirecto del proyecto.
@@ -254,11 +254,19 @@ Es un documento LaTeX autónomo (clase `llncs`, con `tikz` y `pgfplots`) que inc
 
 La iteración óptima aparece marcada explícitamente. Al final, la **curva coste-tiempo dibujada en TikZ**, lista para insertar en un documento académico.
 
-Para compilar el informe hace falta una distribución de LaTeX que incluya la clase `llncs` (la de Springer LNCS):
+#### Cómo compilarlo
+
+El informe usa la clase **LNCS de Springer**, que **no viene incluida** en TeX Live ni en MiKTeX. Hace falta obtener `llncs.cls` por separado:
+
+1. Descarga la clase desde [CTAN](https://ctan.org/pkg/llncs) o desde las [plantillas de Springer](https://www.springer.com/gp/computer-science/lncs/conference-proceedings-guidelines).
+2. Deja `llncs.cls` en la misma carpeta que el `.tex`.
+3. Renombra el informe a `.tex` y compila:
 
 ```bash
 cp output/ejemplo1/output_pert.txt informe.tex && pdflatex informe.tex
 ```
+
+Si prefieres no descargar nada, basta con sustituir la primera línea del `.tex` por `\documentclass{article}`. El resto del documento compila sin cambios, porque no se usa ninguna funcionalidad propia de LNCS.
 
 ---
 
