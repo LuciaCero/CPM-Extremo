@@ -65,49 +65,44 @@ El informe LaTeX completo de este ejemplo está en [`output/ejemplo1/output_pert
 | Requisito | Versión | Para qué |
 |---|---|---|
 | **Python** | 3.12 | Intérprete del proyecto. |
-| **Graphviz** | 2.4+ | Motor de dibujo que usa `pygraphviz` para renderizar el grafo AOA. |
-| **Kaleido** | 0.2+ | Exportación de las figuras de Plotly a PNG (se instala vía `pip`). |
+| **pygraphviz** | 2.0+ | Renderizado del grafo AOA. Los wheels de la versión 2.0 en adelante incluyen Graphviz, así que no hay que instalarlo aparte. |
+| **Kaleido** | 0.2+ | Exportación de las figuras de Plotly a PNG. Se instala vía `pip`. |
 
-### Instalar Graphviz
+### Sobre Graphviz
 
-Graphviz es un binario del sistema, **no se instala con `pip`**. `pygraphviz` fallará al compilar si no está presente.
+Históricamente `pygraphviz` exigía tener **Graphviz instalado en el sistema** y accesible en el PATH, y fallaba al compilar si no estaba. Desde la **versión 2.0** publica wheels precompilados para Windows, macOS y Linux que ya traen Graphviz incluido, de modo que `pip install -r requirements.txt` basta y no hace falta instalar nada más.
 
 <details>
-<summary><strong>Windows</strong></summary>
+<summary><strong>Si pip tiene que compilar pygraphviz desde el código fuente</strong></summary>
+
+Ocurre en plataformas sin wheel disponible, o si se fija una versión anterior a la 2.0. En ese caso sí hacen falta Graphviz y un compilador de C:
+
+| Requisito | Versión mínima |
+|---|---|
+| Graphviz | 2.46 |
+| Compilador de C/C++ | — |
 
 ```powershell
 winget install graphviz
 ```
 
-O descargando el instalador desde [graphviz.org/download](https://graphviz.org/download/). Importante: marcar la opción **Add Graphviz to the system PATH** durante la instalación.
-
-Si `pip install pygraphviz` sigue fallando, hay que indicarle dónde está Graphviz. Ver las [instrucciones oficiales para Windows](https://pygraphviz.github.io/documentation/stable/install.html#windows).
-
-</details>
-
-<details>
-<summary><strong>macOS</strong></summary>
-
 ```bash
 brew install graphviz
 ```
 
-</details>
-
-<details>
-<summary><strong>Linux (Debian/Ubuntu)</strong></summary>
-
 ```bash
 sudo apt-get install graphviz graphviz-dev
 ```
-
-</details>
 
 Verificar que quedó accesible:
 
 ```bash
 dot -V
 ```
+
+Las [instrucciones oficiales de pygraphviz](https://pygraphviz.github.io/documentation/stable/install.html) detallan cómo indicarle dónde está Graphviz si aun así falla.
+
+</details>
 
 ---
 
