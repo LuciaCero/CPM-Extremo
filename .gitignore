@@ -1,0 +1,48 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Cachés de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Herramientas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Variables de entorno
+.env
+.env.local
+
+# Editores e IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Temporales de Excel
+~$*.xlsx
+
+# Artefactos de LaTeX (por si se compila el informe dentro de output/)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz

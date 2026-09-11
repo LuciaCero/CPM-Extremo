@@ -1,0 +1,516 @@
+\documentclass{llncs}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{6pt}
+\begin{document}
+
+\section*{Datos de las Actividades}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Actividad & Predecesor & Sucesor & $D_n$ & $D_e$ & $C_n$ & $C_e$ & Pendiente \\
+\hline
+A & [] & [B, C] & 6 & 4 & 600.0 & 800.0 & 100.0 \\
+B & [A] & [D] & 8 & 6 & 900.0 & 1300.0 & 200.0 \\
+C & [A] & [D] & 5 & 3 & 400.0 & 600.0 & 100.0 \\
+D & [B, C] & [] & 7 & 5 & 700.0 & 1100.0 & 200.0 \\
+\hline
+\end{tabular}
+
+\section*{Datos del Proyecto}
+\noindent
+\begin{tabular}{|c|c|}
+\hline
+Coste Indirecto Fijo & Coste Indirecto Diario \\
+\hline
+0.0 & 150.0 \\
+\hline
+\end{tabular}
+
+\newpage
+
+\section*{Iteración 1}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 6 & 600.0 \\
+B & 8 & 900.0 \\
+C & 5 & 400.0 \\
+D & 7 & 700.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 6 & 6 \\
+3 & 11 & 14 \\
+4 & 14 & 14 \\
+5 & 21 & 21 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + A\} = Max \{0 + 6\} = Max \{6\} = 6$\\
+$E_3 = Max \{E_2 + C\} = Max \{6 + 5\} = Max \{11\} = 11$\\
+$E_4 = Max \{E_2 + B, E_3 + F_1\} = Max \{6 + 8, 11 + 0\} = Max \{14, 11\} = 14$\\
+$E_5 = Max \{E_4 + D\} = Max \{14 + 7\} = Max \{21\} = 21$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_5 = E_5 = 21$\\
+$L_4 = Min \{L_5 - D\} = Min \{21 - 7\} = Min \{14\} = 14$\\
+$L_3 = Min \{L_4 - F_1\} = Min \{14 - 0\} = Min \{14\} = 14$\\
+$L_2 = Min \{L_3 - C, L_4 - B\} = Min \{14 - 5, 14 - 8\} = Min \{9, 6\} = 6$\\
+$L_1 = Min \{L_2 - A\} = Min \{6 - 6\} = Min \{0\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 2 & 6 & 0 & 6 & 0 & Sí \\
+B & 2 $\rightarrow$ 4 & 8 & 6 & 14 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 5 & 6 & 14 & 3 & No \\
+D & 4 $\rightarrow$ 5 & 7 & 14 & 21 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,2} = L_2 - E_1 - D_{A} = 6 - 0 - 6 = 0$\\
+$H_B = H_{2,4} = L_4 - E_2 - D_{B} = 14 - 6 - 8 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 14 - 6 - 5 = 3$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 21 - 14 - 7 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: A, B, D\\[6pt]
+Camino\ crítico\ 1:\ A $\rightarrow$ B $\rightarrow$ D\\
+\subsection*{Duración del proyecto:}
+\noindent
+21 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = A + B + D = 6 + 8 + 7 = 21$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+5750.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} = 600.0 + 900.0 + 400.0 + 700.0 = 2600.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 0.0 + 21 \cdot 150.0 = 3150.0$\\\\
+$C_{\text{total}} = C_d + C_i = 2600.0 + 3150.0 = 5750.0$\\\\
+
+\newpage
+
+\section*{Iteración 2}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 5 & 700.0 \\
+B & 8 & 900.0 \\
+C & 5 & 400.0 \\
+D & 7 & 700.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 5 & 5 \\
+3 & 10 & 13 \\
+4 & 13 & 13 \\
+5 & 20 & 20 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + A\} = Max \{0 + 5\} = Max \{5\} = 5$\\
+$E_3 = Max \{E_2 + C\} = Max \{5 + 5\} = Max \{10\} = 10$\\
+$E_4 = Max \{E_2 + B, E_3 + F_1\} = Max \{5 + 8, 10 + 0\} = Max \{13, 10\} = 13$\\
+$E_5 = Max \{E_4 + D\} = Max \{13 + 7\} = Max \{20\} = 20$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_5 = E_5 = 20$\\
+$L_4 = Min \{L_5 - D\} = Min \{20 - 7\} = Min \{13\} = 13$\\
+$L_3 = Min \{L_4 - F_1\} = Min \{13 - 0\} = Min \{13\} = 13$\\
+$L_2 = Min \{L_3 - C, L_4 - B\} = Min \{13 - 5, 13 - 8\} = Min \{8, 5\} = 5$\\
+$L_1 = Min \{L_2 - A\} = Min \{5 - 5\} = Min \{0\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 2 & 5 & 0 & 5 & 0 & Sí \\
+B & 2 $\rightarrow$ 4 & 8 & 5 & 13 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 5 & 5 & 13 & 3 & No \\
+D & 4 $\rightarrow$ 5 & 7 & 13 & 20 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,2} = L_2 - E_1 - D_{A} = 5 - 0 - 5 = 0$\\
+$H_B = H_{2,4} = L_4 - E_2 - D_{B} = 13 - 5 - 8 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 13 - 5 - 5 = 3$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 20 - 13 - 7 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: A, B, D\\[6pt]
+Camino\ crítico\ 1:\ A $\rightarrow$ B $\rightarrow$ D\\
+\subsection*{Duración del proyecto:}
+\noindent
+20 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = A + B + D = 5 + 8 + 7 = 20$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+5700.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} = 700.0 + 900.0 + 400.0 + 700.0 = 2700.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 0.0 + 20 \cdot 150.0 = 3000.0$\\\\
+$C_{\text{total}} = C_d + C_i = 2700.0 + 3000.0 = 5700.0$\\\\
+
+\newpage
+
+\section*{Iteración 3 (óptima)}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 4 & 800.0 \\
+B & 8 & 900.0 \\
+C & 5 & 400.0 \\
+D & 7 & 700.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 4 & 4 \\
+3 & 9 & 12 \\
+4 & 12 & 12 \\
+5 & 19 & 19 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + A\} = Max \{0 + 4\} = Max \{4\} = 4$\\
+$E_3 = Max \{E_2 + C\} = Max \{4 + 5\} = Max \{9\} = 9$\\
+$E_4 = Max \{E_2 + B, E_3 + F_1\} = Max \{4 + 8, 9 + 0\} = Max \{12, 9\} = 12$\\
+$E_5 = Max \{E_4 + D\} = Max \{12 + 7\} = Max \{19\} = 19$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_5 = E_5 = 19$\\
+$L_4 = Min \{L_5 - D\} = Min \{19 - 7\} = Min \{12\} = 12$\\
+$L_3 = Min \{L_4 - F_1\} = Min \{12 - 0\} = Min \{12\} = 12$\\
+$L_2 = Min \{L_3 - C, L_4 - B\} = Min \{12 - 5, 12 - 8\} = Min \{7, 4\} = 4$\\
+$L_1 = Min \{L_2 - A\} = Min \{4 - 4\} = Min \{0\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 2 & 4 & 0 & 4 & 0 & Sí \\
+B & 2 $\rightarrow$ 4 & 8 & 4 & 12 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 5 & 4 & 12 & 3 & No \\
+D & 4 $\rightarrow$ 5 & 7 & 12 & 19 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,2} = L_2 - E_1 - D_{A} = 4 - 0 - 4 = 0$\\
+$H_B = H_{2,4} = L_4 - E_2 - D_{B} = 12 - 4 - 8 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 12 - 4 - 5 = 3$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 19 - 12 - 7 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: A, B, D\\[6pt]
+Camino\ crítico\ 1:\ A $\rightarrow$ B $\rightarrow$ D\\
+\subsection*{Duración del proyecto:}
+\noindent
+19 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = A + B + D = 4 + 8 + 7 = 19$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+5650.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} = 800.0 + 900.0 + 400.0 + 700.0 = 2800.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 0.0 + 19 \cdot 150.0 = 2850.0$\\\\
+$C_{\text{total}} = C_d + C_i = 2800.0 + 2850.0 = 5650.0$\\\\
+
+\newpage
+
+\section*{Iteración 4 (extra)}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 4 & 800.0 \\
+B & 7 & 1100.0 \\
+C & 5 & 400.0 \\
+D & 7 & 700.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 4 & 4 \\
+3 & 9 & 11 \\
+4 & 11 & 11 \\
+5 & 18 & 18 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + A\} = Max \{0 + 4\} = Max \{4\} = 4$\\
+$E_3 = Max \{E_2 + C\} = Max \{4 + 5\} = Max \{9\} = 9$\\
+$E_4 = Max \{E_2 + B, E_3 + F_1\} = Max \{4 + 7, 9 + 0\} = Max \{11, 9\} = 11$\\
+$E_5 = Max \{E_4 + D\} = Max \{11 + 7\} = Max \{18\} = 18$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_5 = E_5 = 18$\\
+$L_4 = Min \{L_5 - D\} = Min \{18 - 7\} = Min \{11\} = 11$\\
+$L_3 = Min \{L_4 - F_1\} = Min \{11 - 0\} = Min \{11\} = 11$\\
+$L_2 = Min \{L_3 - C, L_4 - B\} = Min \{11 - 5, 11 - 7\} = Min \{6, 4\} = 4$\\
+$L_1 = Min \{L_2 - A\} = Min \{4 - 4\} = Min \{0\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 2 & 4 & 0 & 4 & 0 & Sí \\
+B & 2 $\rightarrow$ 4 & 7 & 4 & 11 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 5 & 4 & 11 & 2 & No \\
+D & 4 $\rightarrow$ 5 & 7 & 11 & 18 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,2} = L_2 - E_1 - D_{A} = 4 - 0 - 4 = 0$\\
+$H_B = H_{2,4} = L_4 - E_2 - D_{B} = 11 - 4 - 7 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 11 - 4 - 5 = 2$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 18 - 11 - 7 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: A, B, D\\[6pt]
+Camino\ crítico\ 1:\ A $\rightarrow$ B $\rightarrow$ D\\
+\subsection*{Duración del proyecto:}
+\noindent
+18 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = A + B + D = 4 + 7 + 7 = 18$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+5700.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} = 800.0 + 1100.0 + 400.0 + 700.0 = 3000.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 0.0 + 18 \cdot 150.0 = 2700.0$\\\\
+$C_{\text{total}} = C_d + C_i = 3000.0 + 2700.0 = 5700.0$\\\\
+
+\newpage
+
+\section*{Iteración 5 (extra)}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 4 & 800.0 \\
+B & 6 & 1300.0 \\
+C & 5 & 400.0 \\
+D & 7 & 700.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 4 & 4 \\
+3 & 9 & 10 \\
+4 & 10 & 10 \\
+5 & 17 & 17 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + A\} = Max \{0 + 4\} = Max \{4\} = 4$\\
+$E_3 = Max \{E_2 + C\} = Max \{4 + 5\} = Max \{9\} = 9$\\
+$E_4 = Max \{E_2 + B, E_3 + F_1\} = Max \{4 + 6, 9 + 0\} = Max \{10, 9\} = 10$\\
+$E_5 = Max \{E_4 + D\} = Max \{10 + 7\} = Max \{17\} = 17$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_5 = E_5 = 17$\\
+$L_4 = Min \{L_5 - D\} = Min \{17 - 7\} = Min \{10\} = 10$\\
+$L_3 = Min \{L_4 - F_1\} = Min \{10 - 0\} = Min \{10\} = 10$\\
+$L_2 = Min \{L_3 - C, L_4 - B\} = Min \{10 - 5, 10 - 6\} = Min \{5, 4\} = 4$\\
+$L_1 = Min \{L_2 - A\} = Min \{4 - 4\} = Min \{0\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 2 & 4 & 0 & 4 & 0 & Sí \\
+B & 2 $\rightarrow$ 4 & 6 & 4 & 10 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 5 & 4 & 10 & 1 & No \\
+D & 4 $\rightarrow$ 5 & 7 & 10 & 17 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,2} = L_2 - E_1 - D_{A} = 4 - 0 - 4 = 0$\\
+$H_B = H_{2,4} = L_4 - E_2 - D_{B} = 10 - 4 - 6 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 10 - 4 - 5 = 1$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 17 - 10 - 7 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: A, B, D\\[6pt]
+Camino\ crítico\ 1:\ A $\rightarrow$ B $\rightarrow$ D\\
+\subsection*{Duración del proyecto:}
+\noindent
+17 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = A + B + D = 4 + 6 + 7 = 17$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+5750.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} = 800.0 + 1300.0 + 400.0 + 700.0 = 3200.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 0.0 + 17 \cdot 150.0 = 2550.0$\\\\
+$C_{\text{total}} = C_d + C_i = 3200.0 + 2550.0 = 5750.0$\\\\
+
+\newpage
+
+
+\section*{Curva Coste--Tiempo}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Duración del proyecto (días)},
+    ylabel={Coste total (€)},
+    title={Curva Coste-Tiempo del Proyecto},
+    grid=both,
+    grid style={dashed, gray!30},
+    x dir=reverse,
+    enlargelimits=0.1,
+    width=12cm,
+    height=8cm,
+]
+
+% Curva coste-tiempo
+\addplot[
+    color=blue,
+    mark=*,
+    thick
+] coordinates {
+        (21,5750.0)
+        (20,5700.0)
+        (19,5650.0)
+        (18,5700.0)
+        (17,5750.0)
+};
+
+% Punto óptimo
+\addplot[
+    color=red,
+    mark=*,
+    only marks
+] coordinates {
+    (19,5650.0)
+};
+
+% Anotación del punto óptimo
+\node at (axis cs:19,5650.0) [below right] {$({19}\text{ días},\ {5650.0}\text{€})$};
+
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{document}

@@ -1,0 +1,906 @@
+\documentclass{llncs}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{6pt}
+\begin{document}
+
+\section*{Datos de las Actividades}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Actividad & Predecesor & Sucesor & $D_n$ & $D_e$ & $C_n$ & $C_e$ & Pendiente \\
+\hline
+A & [] & [D] & 3 & 2 & 300.0 & 450.0 & 150.0 \\
+B & [] & [C, I] & 5 & 3 & 500.0 & 900.0 & 200.0 \\
+C & [B] & [D, F] & 3 & 2 & 360.0 & 540.0 & 180.0 \\
+D & [A, C] & [E] & 4 & 3 & 400.0 & 650.0 & 250.0 \\
+E & [D] & [J] & 8 & 5 & 800.0 & 1700.0 & 300.0 \\
+F & [C] & [G, H] & 2 & 1 & 220.0 & 370.0 & 150.0 \\
+G & [F] & [J] & 4 & 3 & 440.0 & 600.0 & 160.0 \\
+H & [F] & [J] & 2 & 1 & 240.0 & 360.0 & 120.0 \\
+I & [B] & [] & 5 & 3 & 550.0 & 910.0 & 180.0 \\
+J & [E, G, H] & [] & 3 & 2 & 330.0 & 500.0 & 170.0 \\
+\hline
+\end{tabular}
+
+\section*{Datos del Proyecto}
+\noindent
+\begin{tabular}{|c|c|}
+\hline
+Coste Indirecto Fijo & Coste Indirecto Diario \\
+\hline
+2000.0 & 200.0 \\
+\hline
+\end{tabular}
+
+\newpage
+
+\section*{Iteración 1}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 3 & 300.0 \\
+B & 5 & 500.0 \\
+C & 3 & 360.0 \\
+D & 4 & 400.0 \\
+E & 8 & 800.0 \\
+F & 2 & 220.0 \\
+G & 4 & 440.0 \\
+H & 2 & 240.0 \\
+I & 5 & 550.0 \\
+J & 3 & 330.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 5 & 5 \\
+3 & 8 & 8 \\
+4 & 8 & 8 \\
+5 & 12 & 12 \\
+6 & 10 & 16 \\
+7 & 12 & 20 \\
+8 & 20 & 20 \\
+9 & 23 & 23 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + B\} = Max \{0 + 5\} = Max \{5\} = 5$\\
+$E_3 = Max \{E_2 + C\} = Max \{5 + 3\} = Max \{8\} = 8$\\
+$E_4 = Max \{E_1 + A, E_3 + F_1\} = Max \{0 + 3, 8 + 0\} = Max \{3, 8\} = 8$\\
+$E_6 = Max \{E_3 + F\} = Max \{8 + 2\} = Max \{10\} = 10$\\
+$E_5 = Max \{E_4 + D\} = Max \{8 + 4\} = Max \{12\} = 12$\\
+$E_7 = Max \{E_6 + H\} = Max \{10 + 2\} = Max \{12\} = 12$\\
+$E_8 = Max \{E_5 + E, E_6 + G, E_7 + F_2\} = Max \{12 + 8, 10 + 4, 12 + 0\} = Max \{20, 14, 12\} = 20$\\
+$E_9 = Max \{E_2 + I, E_8 + J\} = Max \{5 + 5, 20 + 3\} = Max \{10, 23\} = 23$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_9 = E_9 = 23$\\
+$L_8 = Min \{L_9 - J\} = Min \{23 - 3\} = Min \{20\} = 20$\\
+$L_7 = Min \{L_8 - F_2\} = Min \{20 - 0\} = Min \{20\} = 20$\\
+$L_5 = Min \{L_8 - E\} = Min \{20 - 8\} = Min \{12\} = 12$\\
+$L_6 = Min \{L_7 - H, L_8 - G\} = Min \{20 - 2, 20 - 4\} = Min \{18, 16\} = 16$\\
+$L_4 = Min \{L_5 - D\} = Min \{12 - 4\} = Min \{8\} = 8$\\
+$L_3 = Min \{L_4 - F_1, L_6 - F\} = Min \{8 - 0, 16 - 2\} = Min \{8, 14\} = 8$\\
+$L_2 = Min \{L_3 - C, L_9 - I\} = Min \{8 - 3, 23 - 5\} = Min \{5, 18\} = 5$\\
+$L_1 = Min \{L_2 - B, L_4 - A\} = Min \{5 - 5, 8 - 3\} = Min \{0, 5\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 4 & 3 & 0 & 8 & 5 & No \\
+B & 1 $\rightarrow$ 2 & 5 & 0 & 5 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 3 & 5 & 8 & 0 & Sí \\
+D & 4 $\rightarrow$ 5 & 4 & 8 & 12 & 0 & Sí \\
+E & 5 $\rightarrow$ 8 & 8 & 12 & 20 & 0 & Sí \\
+F & 3 $\rightarrow$ 6 & 2 & 8 & 16 & 6 & No \\
+G & 6 $\rightarrow$ 8 & 4 & 10 & 20 & 6 & No \\
+H & 6 $\rightarrow$ 7 & 2 & 10 & 20 & 8 & No \\
+I & 2 $\rightarrow$ 9 & 5 & 5 & 23 & 13 & No \\
+J & 8 $\rightarrow$ 9 & 3 & 20 & 23 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,4} = L_4 - E_1 - D_{A} = 8 - 0 - 3 = 5$\\
+$H_B = H_{1,2} = L_2 - E_1 - D_{B} = 5 - 0 - 5 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 8 - 5 - 3 = 0$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 12 - 8 - 4 = 0$\\
+$H_E = H_{5,8} = L_8 - E_5 - D_{E} = 20 - 12 - 8 = 0$\\
+$H_F = H_{3,6} = L_6 - E_3 - D_{F} = 16 - 8 - 2 = 6$\\
+$H_G = H_{6,8} = L_8 - E_6 - D_{G} = 20 - 10 - 4 = 6$\\
+$H_H = H_{6,7} = L_7 - E_6 - D_{H} = 20 - 10 - 2 = 8$\\
+$H_I = H_{2,9} = L_9 - E_2 - D_{I} = 23 - 5 - 5 = 13$\\
+$H_J = H_{8,9} = L_9 - E_8 - D_{J} = 23 - 20 - 3 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: B, C, D, E, J\\[6pt]
+Camino\ crítico\ 1:\ B $\rightarrow$ C $\rightarrow$ D $\rightarrow$ E $\rightarrow$ J\\
+\subsection*{Duración del proyecto:}
+\noindent
+23 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = B + C + D + E + J = 5 + 3 + 4 + 8 + 3 = 23$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+10740.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} + D_{E} + D_{F} + D_{G} + D_{H} + D_{I} + D_{J} = 300.0 + 500.0 + 360.0 + 400.0 + 800.0 + 220.0 + 440.0 + 240.0 + 550.0 + 330.0 = 4140.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 2000.0 + 23 \cdot 200.0 = 6600.0$\\\\
+$C_{\text{total}} = C_d + C_i = 4140.0 + 6600.0 = 10740.0$\\\\
+
+\newpage
+
+\section*{Iteración 2}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 3 & 300.0 \\
+B & 5 & 500.0 \\
+C & 3 & 360.0 \\
+D & 4 & 400.0 \\
+E & 8 & 800.0 \\
+F & 2 & 220.0 \\
+G & 4 & 440.0 \\
+H & 2 & 240.0 \\
+I & 5 & 550.0 \\
+J & 2 & 500.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 5 & 5 \\
+3 & 8 & 8 \\
+4 & 8 & 8 \\
+5 & 12 & 12 \\
+6 & 10 & 16 \\
+7 & 12 & 20 \\
+8 & 20 & 20 \\
+9 & 22 & 22 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + B\} = Max \{0 + 5\} = Max \{5\} = 5$\\
+$E_3 = Max \{E_2 + C\} = Max \{5 + 3\} = Max \{8\} = 8$\\
+$E_4 = Max \{E_1 + A, E_3 + F_1\} = Max \{0 + 3, 8 + 0\} = Max \{3, 8\} = 8$\\
+$E_6 = Max \{E_3 + F\} = Max \{8 + 2\} = Max \{10\} = 10$\\
+$E_5 = Max \{E_4 + D\} = Max \{8 + 4\} = Max \{12\} = 12$\\
+$E_7 = Max \{E_6 + H\} = Max \{10 + 2\} = Max \{12\} = 12$\\
+$E_8 = Max \{E_5 + E, E_6 + G, E_7 + F_2\} = Max \{12 + 8, 10 + 4, 12 + 0\} = Max \{20, 14, 12\} = 20$\\
+$E_9 = Max \{E_2 + I, E_8 + J\} = Max \{5 + 5, 20 + 2\} = Max \{10, 22\} = 22$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_9 = E_9 = 22$\\
+$L_8 = Min \{L_9 - J\} = Min \{22 - 2\} = Min \{20\} = 20$\\
+$L_7 = Min \{L_8 - F_2\} = Min \{20 - 0\} = Min \{20\} = 20$\\
+$L_5 = Min \{L_8 - E\} = Min \{20 - 8\} = Min \{12\} = 12$\\
+$L_6 = Min \{L_7 - H, L_8 - G\} = Min \{20 - 2, 20 - 4\} = Min \{18, 16\} = 16$\\
+$L_4 = Min \{L_5 - D\} = Min \{12 - 4\} = Min \{8\} = 8$\\
+$L_3 = Min \{L_4 - F_1, L_6 - F\} = Min \{8 - 0, 16 - 2\} = Min \{8, 14\} = 8$\\
+$L_2 = Min \{L_3 - C, L_9 - I\} = Min \{8 - 3, 22 - 5\} = Min \{5, 17\} = 5$\\
+$L_1 = Min \{L_2 - B, L_4 - A\} = Min \{5 - 5, 8 - 3\} = Min \{0, 5\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 4 & 3 & 0 & 8 & 5 & No \\
+B & 1 $\rightarrow$ 2 & 5 & 0 & 5 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 3 & 5 & 8 & 0 & Sí \\
+D & 4 $\rightarrow$ 5 & 4 & 8 & 12 & 0 & Sí \\
+E & 5 $\rightarrow$ 8 & 8 & 12 & 20 & 0 & Sí \\
+F & 3 $\rightarrow$ 6 & 2 & 8 & 16 & 6 & No \\
+G & 6 $\rightarrow$ 8 & 4 & 10 & 20 & 6 & No \\
+H & 6 $\rightarrow$ 7 & 2 & 10 & 20 & 8 & No \\
+I & 2 $\rightarrow$ 9 & 5 & 5 & 22 & 12 & No \\
+J & 8 $\rightarrow$ 9 & 2 & 20 & 22 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,4} = L_4 - E_1 - D_{A} = 8 - 0 - 3 = 5$\\
+$H_B = H_{1,2} = L_2 - E_1 - D_{B} = 5 - 0 - 5 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 8 - 5 - 3 = 0$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 12 - 8 - 4 = 0$\\
+$H_E = H_{5,8} = L_8 - E_5 - D_{E} = 20 - 12 - 8 = 0$\\
+$H_F = H_{3,6} = L_6 - E_3 - D_{F} = 16 - 8 - 2 = 6$\\
+$H_G = H_{6,8} = L_8 - E_6 - D_{G} = 20 - 10 - 4 = 6$\\
+$H_H = H_{6,7} = L_7 - E_6 - D_{H} = 20 - 10 - 2 = 8$\\
+$H_I = H_{2,9} = L_9 - E_2 - D_{I} = 22 - 5 - 5 = 12$\\
+$H_J = H_{8,9} = L_9 - E_8 - D_{J} = 22 - 20 - 2 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: B, C, D, E, J\\[6pt]
+Camino\ crítico\ 1:\ B $\rightarrow$ C $\rightarrow$ D $\rightarrow$ E $\rightarrow$ J\\
+\subsection*{Duración del proyecto:}
+\noindent
+22 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = B + C + D + E + J = 5 + 3 + 4 + 8 + 2 = 22$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+10710.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} + D_{E} + D_{F} + D_{G} + D_{H} + D_{I} + D_{J} = 300.0 + 500.0 + 360.0 + 400.0 + 800.0 + 220.0 + 440.0 + 240.0 + 550.0 + 500.0 = 4310.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 2000.0 + 22 \cdot 200.0 = 6400.0$\\\\
+$C_{\text{total}} = C_d + C_i = 4310.0 + 6400.0 = 10710.0$\\\\
+
+\newpage
+
+\section*{Iteración 3 (óptima)}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 3 & 300.0 \\
+B & 5 & 500.0 \\
+C & 2 & 540.0 \\
+D & 4 & 400.0 \\
+E & 8 & 800.0 \\
+F & 2 & 220.0 \\
+G & 4 & 440.0 \\
+H & 2 & 240.0 \\
+I & 5 & 550.0 \\
+J & 2 & 500.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 5 & 5 \\
+3 & 7 & 7 \\
+4 & 7 & 7 \\
+5 & 11 & 11 \\
+6 & 9 & 15 \\
+7 & 11 & 19 \\
+8 & 19 & 19 \\
+9 & 21 & 21 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + B\} = Max \{0 + 5\} = Max \{5\} = 5$\\
+$E_3 = Max \{E_2 + C\} = Max \{5 + 2\} = Max \{7\} = 7$\\
+$E_4 = Max \{E_1 + A, E_3 + F_1\} = Max \{0 + 3, 7 + 0\} = Max \{3, 7\} = 7$\\
+$E_6 = Max \{E_3 + F\} = Max \{7 + 2\} = Max \{9\} = 9$\\
+$E_5 = Max \{E_4 + D\} = Max \{7 + 4\} = Max \{11\} = 11$\\
+$E_7 = Max \{E_6 + H\} = Max \{9 + 2\} = Max \{11\} = 11$\\
+$E_8 = Max \{E_5 + E, E_6 + G, E_7 + F_2\} = Max \{11 + 8, 9 + 4, 11 + 0\} = Max \{19, 13, 11\} = 19$\\
+$E_9 = Max \{E_2 + I, E_8 + J\} = Max \{5 + 5, 19 + 2\} = Max \{10, 21\} = 21$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_9 = E_9 = 21$\\
+$L_8 = Min \{L_9 - J\} = Min \{21 - 2\} = Min \{19\} = 19$\\
+$L_7 = Min \{L_8 - F_2\} = Min \{19 - 0\} = Min \{19\} = 19$\\
+$L_5 = Min \{L_8 - E\} = Min \{19 - 8\} = Min \{11\} = 11$\\
+$L_6 = Min \{L_7 - H, L_8 - G\} = Min \{19 - 2, 19 - 4\} = Min \{17, 15\} = 15$\\
+$L_4 = Min \{L_5 - D\} = Min \{11 - 4\} = Min \{7\} = 7$\\
+$L_3 = Min \{L_4 - F_1, L_6 - F\} = Min \{7 - 0, 15 - 2\} = Min \{7, 13\} = 7$\\
+$L_2 = Min \{L_3 - C, L_9 - I\} = Min \{7 - 2, 21 - 5\} = Min \{5, 16\} = 5$\\
+$L_1 = Min \{L_2 - B, L_4 - A\} = Min \{5 - 5, 7 - 3\} = Min \{0, 4\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 4 & 3 & 0 & 7 & 4 & No \\
+B & 1 $\rightarrow$ 2 & 5 & 0 & 5 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 2 & 5 & 7 & 0 & Sí \\
+D & 4 $\rightarrow$ 5 & 4 & 7 & 11 & 0 & Sí \\
+E & 5 $\rightarrow$ 8 & 8 & 11 & 19 & 0 & Sí \\
+F & 3 $\rightarrow$ 6 & 2 & 7 & 15 & 6 & No \\
+G & 6 $\rightarrow$ 8 & 4 & 9 & 19 & 6 & No \\
+H & 6 $\rightarrow$ 7 & 2 & 9 & 19 & 8 & No \\
+I & 2 $\rightarrow$ 9 & 5 & 5 & 21 & 11 & No \\
+J & 8 $\rightarrow$ 9 & 2 & 19 & 21 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,4} = L_4 - E_1 - D_{A} = 7 - 0 - 3 = 4$\\
+$H_B = H_{1,2} = L_2 - E_1 - D_{B} = 5 - 0 - 5 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 7 - 5 - 2 = 0$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 11 - 7 - 4 = 0$\\
+$H_E = H_{5,8} = L_8 - E_5 - D_{E} = 19 - 11 - 8 = 0$\\
+$H_F = H_{3,6} = L_6 - E_3 - D_{F} = 15 - 7 - 2 = 6$\\
+$H_G = H_{6,8} = L_8 - E_6 - D_{G} = 19 - 9 - 4 = 6$\\
+$H_H = H_{6,7} = L_7 - E_6 - D_{H} = 19 - 9 - 2 = 8$\\
+$H_I = H_{2,9} = L_9 - E_2 - D_{I} = 21 - 5 - 5 = 11$\\
+$H_J = H_{8,9} = L_9 - E_8 - D_{J} = 21 - 19 - 2 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: B, C, D, E, J\\[6pt]
+Camino\ crítico\ 1:\ B $\rightarrow$ C $\rightarrow$ D $\rightarrow$ E $\rightarrow$ J\\
+\subsection*{Duración del proyecto:}
+\noindent
+21 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = B + C + D + E + J = 5 + 2 + 4 + 8 + 2 = 21$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+10690.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} + D_{E} + D_{F} + D_{G} + D_{H} + D_{I} + D_{J} = 300.0 + 500.0 + 540.0 + 400.0 + 800.0 + 220.0 + 440.0 + 240.0 + 550.0 + 500.0 = 4490.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 2000.0 + 21 \cdot 200.0 = 6200.0$\\\\
+$C_{\text{total}} = C_d + C_i = 4490.0 + 6200.0 = 10690.0$\\\\
+
+\newpage
+
+\section*{Iteración 4 (extra)}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 3 & 300.0 \\
+B & 4 & 700.0 \\
+C & 2 & 540.0 \\
+D & 4 & 400.0 \\
+E & 8 & 800.0 \\
+F & 2 & 220.0 \\
+G & 4 & 440.0 \\
+H & 2 & 240.0 \\
+I & 5 & 550.0 \\
+J & 2 & 500.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 4 & 4 \\
+3 & 6 & 6 \\
+4 & 6 & 6 \\
+5 & 10 & 10 \\
+6 & 8 & 14 \\
+7 & 10 & 18 \\
+8 & 18 & 18 \\
+9 & 20 & 20 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + B\} = Max \{0 + 4\} = Max \{4\} = 4$\\
+$E_3 = Max \{E_2 + C\} = Max \{4 + 2\} = Max \{6\} = 6$\\
+$E_4 = Max \{E_1 + A, E_3 + F_1\} = Max \{0 + 3, 6 + 0\} = Max \{3, 6\} = 6$\\
+$E_6 = Max \{E_3 + F\} = Max \{6 + 2\} = Max \{8\} = 8$\\
+$E_5 = Max \{E_4 + D\} = Max \{6 + 4\} = Max \{10\} = 10$\\
+$E_7 = Max \{E_6 + H\} = Max \{8 + 2\} = Max \{10\} = 10$\\
+$E_8 = Max \{E_5 + E, E_6 + G, E_7 + F_2\} = Max \{10 + 8, 8 + 4, 10 + 0\} = Max \{18, 12, 10\} = 18$\\
+$E_9 = Max \{E_2 + I, E_8 + J\} = Max \{4 + 5, 18 + 2\} = Max \{9, 20\} = 20$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_9 = E_9 = 20$\\
+$L_8 = Min \{L_9 - J\} = Min \{20 - 2\} = Min \{18\} = 18$\\
+$L_7 = Min \{L_8 - F_2\} = Min \{18 - 0\} = Min \{18\} = 18$\\
+$L_5 = Min \{L_8 - E\} = Min \{18 - 8\} = Min \{10\} = 10$\\
+$L_6 = Min \{L_7 - H, L_8 - G\} = Min \{18 - 2, 18 - 4\} = Min \{16, 14\} = 14$\\
+$L_4 = Min \{L_5 - D\} = Min \{10 - 4\} = Min \{6\} = 6$\\
+$L_3 = Min \{L_4 - F_1, L_6 - F\} = Min \{6 - 0, 14 - 2\} = Min \{6, 12\} = 6$\\
+$L_2 = Min \{L_3 - C, L_9 - I\} = Min \{6 - 2, 20 - 5\} = Min \{4, 15\} = 4$\\
+$L_1 = Min \{L_2 - B, L_4 - A\} = Min \{4 - 4, 6 - 3\} = Min \{0, 3\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 4 & 3 & 0 & 6 & 3 & No \\
+B & 1 $\rightarrow$ 2 & 4 & 0 & 4 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 2 & 4 & 6 & 0 & Sí \\
+D & 4 $\rightarrow$ 5 & 4 & 6 & 10 & 0 & Sí \\
+E & 5 $\rightarrow$ 8 & 8 & 10 & 18 & 0 & Sí \\
+F & 3 $\rightarrow$ 6 & 2 & 6 & 14 & 6 & No \\
+G & 6 $\rightarrow$ 8 & 4 & 8 & 18 & 6 & No \\
+H & 6 $\rightarrow$ 7 & 2 & 8 & 18 & 8 & No \\
+I & 2 $\rightarrow$ 9 & 5 & 4 & 20 & 11 & No \\
+J & 8 $\rightarrow$ 9 & 2 & 18 & 20 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,4} = L_4 - E_1 - D_{A} = 6 - 0 - 3 = 3$\\
+$H_B = H_{1,2} = L_2 - E_1 - D_{B} = 4 - 0 - 4 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 6 - 4 - 2 = 0$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 10 - 6 - 4 = 0$\\
+$H_E = H_{5,8} = L_8 - E_5 - D_{E} = 18 - 10 - 8 = 0$\\
+$H_F = H_{3,6} = L_6 - E_3 - D_{F} = 14 - 6 - 2 = 6$\\
+$H_G = H_{6,8} = L_8 - E_6 - D_{G} = 18 - 8 - 4 = 6$\\
+$H_H = H_{6,7} = L_7 - E_6 - D_{H} = 18 - 8 - 2 = 8$\\
+$H_I = H_{2,9} = L_9 - E_2 - D_{I} = 20 - 4 - 5 = 11$\\
+$H_J = H_{8,9} = L_9 - E_8 - D_{J} = 20 - 18 - 2 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: B, C, D, E, J\\[6pt]
+Camino\ crítico\ 1:\ B $\rightarrow$ C $\rightarrow$ D $\rightarrow$ E $\rightarrow$ J\\
+\subsection*{Duración del proyecto:}
+\noindent
+20 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = B + C + D + E + J = 4 + 2 + 4 + 8 + 2 = 20$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+10690.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} + D_{E} + D_{F} + D_{G} + D_{H} + D_{I} + D_{J} = 300.0 + 700.0 + 540.0 + 400.0 + 800.0 + 220.0 + 440.0 + 240.0 + 550.0 + 500.0 = 4690.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 2000.0 + 20 \cdot 200.0 = 6000.0$\\\\
+$C_{\text{total}} = C_d + C_i = 4690.0 + 6000.0 = 10690.0$\\\\
+
+\newpage
+
+\section*{Iteración 5 (extra)}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 3 & 300.0 \\
+B & 3 & 900.0 \\
+C & 2 & 540.0 \\
+D & 4 & 400.0 \\
+E & 8 & 800.0 \\
+F & 2 & 220.0 \\
+G & 4 & 440.0 \\
+H & 2 & 240.0 \\
+I & 5 & 550.0 \\
+J & 2 & 500.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 3 & 3 \\
+3 & 5 & 5 \\
+4 & 5 & 5 \\
+5 & 9 & 9 \\
+6 & 7 & 13 \\
+7 & 9 & 17 \\
+8 & 17 & 17 \\
+9 & 19 & 19 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + B\} = Max \{0 + 3\} = Max \{3\} = 3$\\
+$E_3 = Max \{E_2 + C\} = Max \{3 + 2\} = Max \{5\} = 5$\\
+$E_4 = Max \{E_1 + A, E_3 + F_1\} = Max \{0 + 3, 5 + 0\} = Max \{3, 5\} = 5$\\
+$E_6 = Max \{E_3 + F\} = Max \{5 + 2\} = Max \{7\} = 7$\\
+$E_5 = Max \{E_4 + D\} = Max \{5 + 4\} = Max \{9\} = 9$\\
+$E_7 = Max \{E_6 + H\} = Max \{7 + 2\} = Max \{9\} = 9$\\
+$E_8 = Max \{E_5 + E, E_6 + G, E_7 + F_2\} = Max \{9 + 8, 7 + 4, 9 + 0\} = Max \{17, 11, 9\} = 17$\\
+$E_9 = Max \{E_2 + I, E_8 + J\} = Max \{3 + 5, 17 + 2\} = Max \{8, 19\} = 19$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_9 = E_9 = 19$\\
+$L_8 = Min \{L_9 - J\} = Min \{19 - 2\} = Min \{17\} = 17$\\
+$L_7 = Min \{L_8 - F_2\} = Min \{17 - 0\} = Min \{17\} = 17$\\
+$L_5 = Min \{L_8 - E\} = Min \{17 - 8\} = Min \{9\} = 9$\\
+$L_6 = Min \{L_7 - H, L_8 - G\} = Min \{17 - 2, 17 - 4\} = Min \{15, 13\} = 13$\\
+$L_4 = Min \{L_5 - D\} = Min \{9 - 4\} = Min \{5\} = 5$\\
+$L_3 = Min \{L_4 - F_1, L_6 - F\} = Min \{5 - 0, 13 - 2\} = Min \{5, 11\} = 5$\\
+$L_2 = Min \{L_3 - C, L_9 - I\} = Min \{5 - 2, 19 - 5\} = Min \{3, 14\} = 3$\\
+$L_1 = Min \{L_2 - B, L_4 - A\} = Min \{3 - 3, 5 - 3\} = Min \{0, 2\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 4 & 3 & 0 & 5 & 2 & No \\
+B & 1 $\rightarrow$ 2 & 3 & 0 & 3 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 2 & 3 & 5 & 0 & Sí \\
+D & 4 $\rightarrow$ 5 & 4 & 5 & 9 & 0 & Sí \\
+E & 5 $\rightarrow$ 8 & 8 & 9 & 17 & 0 & Sí \\
+F & 3 $\rightarrow$ 6 & 2 & 5 & 13 & 6 & No \\
+G & 6 $\rightarrow$ 8 & 4 & 7 & 17 & 6 & No \\
+H & 6 $\rightarrow$ 7 & 2 & 7 & 17 & 8 & No \\
+I & 2 $\rightarrow$ 9 & 5 & 3 & 19 & 11 & No \\
+J & 8 $\rightarrow$ 9 & 2 & 17 & 19 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,4} = L_4 - E_1 - D_{A} = 5 - 0 - 3 = 2$\\
+$H_B = H_{1,2} = L_2 - E_1 - D_{B} = 3 - 0 - 3 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 5 - 3 - 2 = 0$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 9 - 5 - 4 = 0$\\
+$H_E = H_{5,8} = L_8 - E_5 - D_{E} = 17 - 9 - 8 = 0$\\
+$H_F = H_{3,6} = L_6 - E_3 - D_{F} = 13 - 5 - 2 = 6$\\
+$H_G = H_{6,8} = L_8 - E_6 - D_{G} = 17 - 7 - 4 = 6$\\
+$H_H = H_{6,7} = L_7 - E_6 - D_{H} = 17 - 7 - 2 = 8$\\
+$H_I = H_{2,9} = L_9 - E_2 - D_{I} = 19 - 3 - 5 = 11$\\
+$H_J = H_{8,9} = L_9 - E_8 - D_{J} = 19 - 17 - 2 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: B, C, D, E, J\\[6pt]
+Camino\ crítico\ 1:\ B $\rightarrow$ C $\rightarrow$ D $\rightarrow$ E $\rightarrow$ J\\
+\subsection*{Duración del proyecto:}
+\noindent
+19 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = B + C + D + E + J = 3 + 2 + 4 + 8 + 2 = 19$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+10690.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} + D_{E} + D_{F} + D_{G} + D_{H} + D_{I} + D_{J} = 300.0 + 900.0 + 540.0 + 400.0 + 800.0 + 220.0 + 440.0 + 240.0 + 550.0 + 500.0 = 4890.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 2000.0 + 19 \cdot 200.0 = 5800.0$\\\\
+$C_{\text{total}} = C_d + C_i = 4890.0 + 5800.0 = 10690.0$\\\\
+
+\newpage
+
+\section*{Iteración 6 (extra)}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 3 & 300.0 \\
+B & 3 & 900.0 \\
+C & 2 & 540.0 \\
+D & 3 & 650.0 \\
+E & 8 & 800.0 \\
+F & 2 & 220.0 \\
+G & 4 & 440.0 \\
+H & 2 & 240.0 \\
+I & 5 & 550.0 \\
+J & 2 & 500.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 3 & 3 \\
+3 & 5 & 5 \\
+4 & 5 & 5 \\
+5 & 8 & 8 \\
+6 & 7 & 12 \\
+7 & 9 & 16 \\
+8 & 16 & 16 \\
+9 & 18 & 18 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + B\} = Max \{0 + 3\} = Max \{3\} = 3$\\
+$E_3 = Max \{E_2 + C\} = Max \{3 + 2\} = Max \{5\} = 5$\\
+$E_4 = Max \{E_1 + A, E_3 + F_1\} = Max \{0 + 3, 5 + 0\} = Max \{3, 5\} = 5$\\
+$E_6 = Max \{E_3 + F\} = Max \{5 + 2\} = Max \{7\} = 7$\\
+$E_5 = Max \{E_4 + D\} = Max \{5 + 3\} = Max \{8\} = 8$\\
+$E_7 = Max \{E_6 + H\} = Max \{7 + 2\} = Max \{9\} = 9$\\
+$E_8 = Max \{E_5 + E, E_6 + G, E_7 + F_2\} = Max \{8 + 8, 7 + 4, 9 + 0\} = Max \{16, 11, 9\} = 16$\\
+$E_9 = Max \{E_2 + I, E_8 + J\} = Max \{3 + 5, 16 + 2\} = Max \{8, 18\} = 18$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_9 = E_9 = 18$\\
+$L_8 = Min \{L_9 - J\} = Min \{18 - 2\} = Min \{16\} = 16$\\
+$L_7 = Min \{L_8 - F_2\} = Min \{16 - 0\} = Min \{16\} = 16$\\
+$L_5 = Min \{L_8 - E\} = Min \{16 - 8\} = Min \{8\} = 8$\\
+$L_6 = Min \{L_7 - H, L_8 - G\} = Min \{16 - 2, 16 - 4\} = Min \{14, 12\} = 12$\\
+$L_4 = Min \{L_5 - D\} = Min \{8 - 3\} = Min \{5\} = 5$\\
+$L_3 = Min \{L_4 - F_1, L_6 - F\} = Min \{5 - 0, 12 - 2\} = Min \{5, 10\} = 5$\\
+$L_2 = Min \{L_3 - C, L_9 - I\} = Min \{5 - 2, 18 - 5\} = Min \{3, 13\} = 3$\\
+$L_1 = Min \{L_2 - B, L_4 - A\} = Min \{3 - 3, 5 - 3\} = Min \{0, 2\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 4 & 3 & 0 & 5 & 2 & No \\
+B & 1 $\rightarrow$ 2 & 3 & 0 & 3 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 2 & 3 & 5 & 0 & Sí \\
+D & 4 $\rightarrow$ 5 & 3 & 5 & 8 & 0 & Sí \\
+E & 5 $\rightarrow$ 8 & 8 & 8 & 16 & 0 & Sí \\
+F & 3 $\rightarrow$ 6 & 2 & 5 & 12 & 5 & No \\
+G & 6 $\rightarrow$ 8 & 4 & 7 & 16 & 5 & No \\
+H & 6 $\rightarrow$ 7 & 2 & 7 & 16 & 7 & No \\
+I & 2 $\rightarrow$ 9 & 5 & 3 & 18 & 10 & No \\
+J & 8 $\rightarrow$ 9 & 2 & 16 & 18 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,4} = L_4 - E_1 - D_{A} = 5 - 0 - 3 = 2$\\
+$H_B = H_{1,2} = L_2 - E_1 - D_{B} = 3 - 0 - 3 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 5 - 3 - 2 = 0$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 8 - 5 - 3 = 0$\\
+$H_E = H_{5,8} = L_8 - E_5 - D_{E} = 16 - 8 - 8 = 0$\\
+$H_F = H_{3,6} = L_6 - E_3 - D_{F} = 12 - 5 - 2 = 5$\\
+$H_G = H_{6,8} = L_8 - E_6 - D_{G} = 16 - 7 - 4 = 5$\\
+$H_H = H_{6,7} = L_7 - E_6 - D_{H} = 16 - 7 - 2 = 7$\\
+$H_I = H_{2,9} = L_9 - E_2 - D_{I} = 18 - 3 - 5 = 10$\\
+$H_J = H_{8,9} = L_9 - E_8 - D_{J} = 18 - 16 - 2 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: B, C, D, E, J\\[6pt]
+Camino\ crítico\ 1:\ B $\rightarrow$ C $\rightarrow$ D $\rightarrow$ E $\rightarrow$ J\\
+\subsection*{Duración del proyecto:}
+\noindent
+18 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = B + C + D + E + J = 3 + 2 + 3 + 8 + 2 = 18$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+10740.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} + D_{E} + D_{F} + D_{G} + D_{H} + D_{I} + D_{J} = 300.0 + 900.0 + 540.0 + 650.0 + 800.0 + 220.0 + 440.0 + 240.0 + 550.0 + 500.0 = 5140.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 2000.0 + 18 \cdot 200.0 = 5600.0$\\\\
+$C_{\text{total}} = C_d + C_i = 5140.0 + 5600.0 = 10740.0$\\\\
+
+\newpage
+
+\section*{Iteración 7 (extra)}
+
+\subsection*{Estado de actividades}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Actividad & Duración (días) & Coste (\text{€}) \\
+\hline
+A & 3 & 300.0 \\
+B & 3 & 900.0 \\
+C & 2 & 540.0 \\
+D & 3 & 650.0 \\
+E & 7 & 1100.0 \\
+F & 2 & 220.0 \\
+G & 4 & 440.0 \\
+H & 2 & 240.0 \\
+I & 5 & 550.0 \\
+J & 2 & 500.0 \\
+\hline\end{tabular}
+
+\subsection*{Tabla Early/Last}
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Nodo & Early & Last \\
+\hline
+1 & 0 & 0 \\
+2 & 3 & 3 \\
+3 & 5 & 5 \\
+4 & 5 & 5 \\
+5 & 8 & 8 \\
+6 & 7 & 11 \\
+7 & 9 & 15 \\
+8 & 15 & 15 \\
+9 & 17 & 17 \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles Early}
+\noindent
+$E_1 = 0$\\
+$E_2 = Max \{E_1 + B\} = Max \{0 + 3\} = Max \{3\} = 3$\\
+$E_3 = Max \{E_2 + C\} = Max \{3 + 2\} = Max \{5\} = 5$\\
+$E_4 = Max \{E_1 + A, E_3 + F_1\} = Max \{0 + 3, 5 + 0\} = Max \{3, 5\} = 5$\\
+$E_6 = Max \{E_3 + F\} = Max \{5 + 2\} = Max \{7\} = 7$\\
+$E_5 = Max \{E_4 + D\} = Max \{5 + 3\} = Max \{8\} = 8$\\
+$E_7 = Max \{E_6 + H\} = Max \{7 + 2\} = Max \{9\} = 9$\\
+$E_8 = Max \{E_5 + E, E_6 + G, E_7 + F_2\} = Max \{8 + 7, 7 + 4, 9 + 0\} = Max \{15, 11, 9\} = 15$\\
+$E_9 = Max \{E_2 + I, E_8 + J\} = Max \{3 + 5, 15 + 2\} = Max \{8, 17\} = 17$\\
+
+\subsection*{Detalles Last}
+\noindent
+$L_9 = E_9 = 17$\\
+$L_8 = Min \{L_9 - J\} = Min \{17 - 2\} = Min \{15\} = 15$\\
+$L_7 = Min \{L_8 - F_2\} = Min \{15 - 0\} = Min \{15\} = 15$\\
+$L_5 = Min \{L_8 - E\} = Min \{15 - 7\} = Min \{8\} = 8$\\
+$L_6 = Min \{L_7 - H, L_8 - G\} = Min \{15 - 2, 15 - 4\} = Min \{13, 11\} = 11$\\
+$L_4 = Min \{L_5 - D\} = Min \{8 - 3\} = Min \{5\} = 5$\\
+$L_3 = Min \{L_4 - F_1, L_6 - F\} = Min \{5 - 0, 11 - 2\} = Min \{5, 9\} = 5$\\
+$L_2 = Min \{L_3 - C, L_9 - I\} = Min \{5 - 2, 17 - 5\} = Min \{3, 12\} = 3$\\
+$L_1 = Min \{L_2 - B, L_4 - A\} = Min \{3 - 3, 5 - 3\} = Min \{0, 2\} = 0$\\
+
+\subsection*{Tabla de Holguras}
+\noindent
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Tarea & Ruta($i \rightarrow j$) & $Duracion_{ij}$ & $Early_i$ & $Last_j$ & $Holgura_{ij}$ & Crítica \\
+\hline
+A & 1 $\rightarrow$ 4 & 3 & 0 & 5 & 2 & No \\
+B & 1 $\rightarrow$ 2 & 3 & 0 & 3 & 0 & Sí \\
+C & 2 $\rightarrow$ 3 & 2 & 3 & 5 & 0 & Sí \\
+D & 4 $\rightarrow$ 5 & 3 & 5 & 8 & 0 & Sí \\
+E & 5 $\rightarrow$ 8 & 7 & 8 & 15 & 0 & Sí \\
+F & 3 $\rightarrow$ 6 & 2 & 5 & 11 & 4 & No \\
+G & 6 $\rightarrow$ 8 & 4 & 7 & 15 & 4 & No \\
+H & 6 $\rightarrow$ 7 & 2 & 7 & 15 & 6 & No \\
+I & 2 $\rightarrow$ 9 & 5 & 3 & 17 & 9 & No \\
+J & 8 $\rightarrow$ 9 & 2 & 15 & 17 & 0 & Sí \\
+\hline
+\end{tabular}
+
+\subsection*{Detalles de Holguras}
+\noindent
+$H_A = H_{1,4} = L_4 - E_1 - D_{A} = 5 - 0 - 3 = 2$\\
+$H_B = H_{1,2} = L_2 - E_1 - D_{B} = 3 - 0 - 3 = 0$\\
+$H_C = H_{2,3} = L_3 - E_2 - D_{C} = 5 - 3 - 2 = 0$\\
+$H_D = H_{4,5} = L_5 - E_4 - D_{D} = 8 - 5 - 3 = 0$\\
+$H_E = H_{5,8} = L_8 - E_5 - D_{E} = 15 - 8 - 7 = 0$\\
+$H_F = H_{3,6} = L_6 - E_3 - D_{F} = 11 - 5 - 2 = 4$\\
+$H_G = H_{6,8} = L_8 - E_6 - D_{G} = 15 - 7 - 4 = 4$\\
+$H_H = H_{6,7} = L_7 - E_6 - D_{H} = 15 - 7 - 2 = 6$\\
+$H_I = H_{2,9} = L_9 - E_2 - D_{I} = 17 - 3 - 5 = 9$\\
+$H_J = H_{8,9} = L_9 - E_8 - D_{J} = 17 - 15 - 2 = 0$\\
+
+\subsection*{Caminos Críticos}
+\noindent
+Actividades críticas: B, C, D, E, J\\[6pt]
+Camino\ crítico\ 1:\ B $\rightarrow$ C $\rightarrow$ D $\rightarrow$ E $\rightarrow$ J\\
+\subsection*{Duración del proyecto:}
+\noindent
+17 días\\
+\subsection*{Detalles del cálculo de la duración}
+\noindent
+$D_{camino\ 1} = B + C + D + E + J = 3 + 2 + 3 + 7 + 2 = 17$\\\\
+
+\subsection*{Coste total del proyecto:}
+\noindent
+10840.0 \text{€}\\
+\subsection*{Detalles del cálculo del coste}
+\noindent
+$C_d = D_{A} + D_{B} + D_{C} + D_{D} + D_{E} + D_{F} + D_{G} + D_{H} + D_{I} + D_{J} = 300.0 + 900.0 + 540.0 + 650.0 + 1100.0 + 220.0 + 440.0 + 240.0 + 550.0 + 500.0 = 5440.0$\\\\
+$C_i = C_0 + D_{proyecto} \cdot C_d = 2000.0 + 17 \cdot 200.0 = 5400.0$\\\\
+$C_{\text{total}} = C_d + C_i = 5440.0 + 5400.0 = 10840.0$\\\\
+
+\newpage
+
+
+\section*{Curva Coste--Tiempo}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Duración del proyecto (días)},
+    ylabel={Coste total (€)},
+    title={Curva Coste-Tiempo del Proyecto},
+    grid=both,
+    grid style={dashed, gray!30},
+    x dir=reverse,
+    enlargelimits=0.1,
+    width=12cm,
+    height=8cm,
+]
+
+% Curva coste-tiempo
+\addplot[
+    color=blue,
+    mark=*,
+    thick
+] coordinates {
+        (23,10740.0)
+        (22,10710.0)
+        (21,10690.0)
+        (20,10690.0)
+        (19,10690.0)
+        (18,10740.0)
+        (17,10840.0)
+};
+
+% Punto óptimo
+\addplot[
+    color=red,
+    mark=*,
+    only marks
+] coordinates {
+    (19,10690.0)
+};
+
+% Anotación del punto óptimo
+\node at (axis cs:19,10690.0) [below right] {$({19}\text{ días},\ {10690.0}\text{€})$};
+
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{document}

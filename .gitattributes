@@ -1,0 +1,19 @@
+# Normalizar finales de línea: LF en el repositorio, nativo en el working tree
+* text=auto
+
+# Ficheros de texto del proyecto
+*.py     text diff=python
+*.md     text
+*.toml   text
+*.txt    text
+*.yml    text
+*.yaml   text
+
+# Scripts que deben conservar su final de línea nativo
+*.ps1    text eol=crlf
+*.sh     text eol=lf
+
+# Binarios: git no debe tocarlos ni intentar hacer diff
+*.xlsx   binary
+*.png    binary
+*.pdf    binary

@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    name: Ejecutar el ejemplo de referencia
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz graphviz-dev
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Ejecutar el CPM extremo sobre todos los inputs
+        run: |
+          for f in inputs/*.xlsx; do
+            echo "::group::$f"
+            cpm-extremo "$f"
+            echo "::endgroup::"
+          done
+
+      - name: Comprobar que se generaron las cuatro salidas de cada input
+        run: |
+          estado=0
+          for f in inputs/*.xlsx; do
+            nombre=$(basename "$f" .xlsx)
+            for salida in output_graph.png output_gantt.png output_coste-tiempo.png output_pert.txt; do
+              ruta="output/$nombre/$salida"
+              if [ ! -s "$ruta" ]; then
+                echo "FALTA o está vacío: $ruta"
+                estado=1
+              fi
+            done
+          done
+          exit $estado
+
+      - name: Publicar las salidas generadas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: salidas-cpm
+          path: output/
