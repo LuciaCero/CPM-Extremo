@@ -199,7 +199,7 @@ for f in inputs/*.xlsx; do cpm-extremo "$f"; done
 
 El Excel debe respetar una estructura **de posiciones fijas**: el lector localiza los datos por número de fila, no por etiqueta. La forma más segura de crear un input nuevo es duplicar [`inputs/ejemplo1.xlsx`](inputs/ejemplo1.xlsx) y sobrescribir los valores.
 
-La estructura completa está documentada en **[docs/FORMATO_INPUT.md](docs/FORMATO_INPUT.md)**. Resumen:
+La estructura completa está documentada en **[docs/INPUT_FORMAT.md](docs/INPUT_FORMAT.md)**. Resumen:
 
 | Fila (0-indexada) | Contenido |
 |---|---|
@@ -287,8 +287,8 @@ CPM-Extremo/
 │       └── output_pert.txt
 │
 ├── docs/
-│   ├── FORMATO_INPUT.md             # Especificación detallada del Excel
-│   └── ALGORITMO.md                 # Fundamento matemático y pseudocódigo
+│   ├── INPUT_FORMAT.md              # Especificación detallada del Excel
+│   └── ALGORITHM.md                 # Fundamento matemático y pseudocódigo
 │
 ├── src/cpm_extremo/
 │   ├── main.py                      # Punto de entrada y orquestación
@@ -333,7 +333,7 @@ CPM-Extremo/
 
 ## Cómo funciona el algoritmo
 
-Explicación completa y pseudocódigo en **[docs/ALGORITMO.md](docs/ALGORITMO.md)**. En resumen:
+Explicación completa y pseudocódigo en **[docs/ALGORITHM.md](docs/ALGORITHM.md)**. En resumen:
 
 ```
 1. Construir el grafo AOA y simplificarlo.
