@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cpm-extremo"
-version = "1.0.0"
+version = "1.1.0"
 description = "Implementación del método CPM extremo con análisis coste-tiempo, grafo AOA, diagrama de Gantt e informe LaTeX."
 readme = "README.md"
 requires-python = ">=3.12"
