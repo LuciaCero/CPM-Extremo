@@ -1,127 +1,125 @@
-# CPM Extremo — Análisis Coste-Tiempo de Proyectos
+# CPM Extremo — Project Cost-Time Analysis
 
 [![CI](https://github.com/LuciaCero/CPM-Extremo/actions/workflows/ci.yml/badge.svg)](https://github.com/LuciaCero/CPM-Extremo/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![NetworkX](https://img.shields.io/badge/NetworkX-3.x-orange)](https://networkx.org/)
-[![Graphviz](https://img.shields.io/badge/Graphviz-required-blue)](https://graphviz.org/)
+[![Tests](https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white)](tests/)
 
-Implementación completa del **método CPM extremo** (*crashing* del camino crítico) con análisis coste-tiempo. A partir de una tabla de actividades en Excel, el programa construye el grafo AOA del proyecto, calcula el camino crítico, reduce iterativamente las duraciones buscando el coste total mínimo, y genera toda la documentación del proceso: gráficos y un informe LaTeX con cada cálculo desarrollado paso a paso.
+A complete implementation of **CPM crashing** with cost-time analysis. Starting from a table of activities in a spreadsheet, the program builds the project's AOA graph, finds the critical path, iteratively shortens durations in search of the minimum total cost, and produces the full paper trail: charts plus a LaTeX report with every calculation worked out step by step.
 
-> Desarrollado como proyecto para la asignatura *Planificación de Proyectos y Análisis de Riesgos*.
+*Code identifiers and the generated LaTeX report are in Spanish.*
 
----
-
-## Tabla de contenidos
-
-- [¿Qué hace?](#qué-hace)
-- [Ejemplo de salida](#ejemplo-de-salida)
-- [Requisitos del sistema](#requisitos-del-sistema)
-- [Instalación](#instalación)
-- [Uso](#uso)
-- [Formato del Excel de entrada](#formato-del-excel-de-entrada)
-- [Salidas generadas](#salidas-generadas)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Cómo funciona el algoritmo](#cómo-funciona-el-algoritmo)
-- [Notas y limitaciones](#notas-y-limitaciones)
-- [Licencia](#licencia)
+> Developed as a university project for a Project Planning and Risk Analysis course.
 
 ---
 
-## ¿Qué hace?
+## Table of contents
 
-| Etapa | Descripción |
+- [What it does](#what-it-does)
+- [Sample output](#sample-output)
+- [System requirements](#system-requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Input spreadsheet format](#input-spreadsheet-format)
+- [Generated output](#generated-output)
+- [Running tests](#running-tests)
+- [Project structure](#project-structure)
+- [How the algorithm works](#how-the-algorithm-works)
+- [Notes and limitations](#notes-and-limitations)
+- [License](#license)
+
+---
+
+## What it does
+
+| Stage | Description |
 |---|---|
-| **Lectura** | Parsea el Excel de entrada: duraciones normal/extrema, costes normal/extremo, costes indirectos y matriz de dependencias. |
-| **Grafo AOA** | Construye el grafo *Activity-on-Arrow*, inserta las actividades ficticias necesarias y lo simplifica eliminando nodos redundantes. |
-| **CPM clásico** | Calcula *Early* y *Last* de cada nodo, holguras totales, actividades críticas y todos los caminos críticos. |
-| **CPM extremo** | Reduce iterativamente en 1 día la actividad crítica de menor pendiente de coste, recalculando todo el CPM en cada paso. |
-| **Coste-tiempo** | Evalúa coste directo + indirecto en cada iteración y localiza el punto óptimo (coste total mínimo). |
-| **Documentación** | Exporta grafo AOA, diagrama de Gantt, curva coste-tiempo y un informe LaTeX con todas las fórmulas desarrolladas. |
+| **Reading** | Parses the input spreadsheet: normal and crash durations, normal and crash costs, indirect costs and the dependency matrix. |
+| **AOA graph** | Builds the *Activity-on-Arrow* graph, inserts the dummy activities it needs and simplifies away redundant nodes. |
+| **Classic CPM** | Computes early and last values for every node, total float, critical activities and every critical path. |
+| **CPM crashing** | Iteratively shortens the critical activity with the cheapest cost slope, recomputing the whole CPM at each step. |
+| **Cost-time** | Evaluates direct plus indirect cost at every iteration and pinpoints the optimum, the minimum total cost. |
+| **Documentation** | Exports the AOA graph, a Gantt chart, the cost-time curve and a LaTeX report with all the working shown. |
 
-Un detalle que diferencia este proyecto de una implementación mínima: **cada cálculo se registra simbólica y numéricamente**. El informe no muestra solo el resultado `E4 = 14`, sino la expresión completa `E4 = Max{E2 + B, E3 + C} = Max{6 + 8, 6 + 5} = Max{14, 11} = 14`, lo que permite corregir el ejercicio a mano y verificar cada paso.
+One thing that sets this apart from a minimal implementation: **every calculation records its own symbolic and numeric working**. The report does not just show the result `E4 = 14`, it shows the full expression `E4 = Max{E2 + B, E3 + C} = Max{6 + 8, 6 + 5} = Max{14, 11} = 14`, so the exercise can be marked by hand and every step verified.
 
 ---
 
-## Ejemplo de salida
+## Sample output
 
-Ejecutando `inputs/ejemplo1.xlsx`:
+Running `inputs/ejemplo1.xlsx`:
 
-| Grafo AOA | Curva coste-tiempo |
+| AOA graph | Cost-time curve |
 |:---:|:---:|
-| ![Grafo AOA](output/ejemplo1/output_graph.png) | ![Curva coste-tiempo](output/ejemplo1/output_coste-tiempo.png) |
-| *Actividades ficticias en trazo discontinuo* | *Punto óptimo marcado en rojo* |
+| ![AOA graph](output/ejemplo1/output_graph.png) | ![Cost-time curve](output/ejemplo1/output_coste-tiempo.png) |
+| *Dummy activities drawn dashed* | *Optimum marked in red* |
 
-![Diagrama de Gantt](output/ejemplo1/output_gantt.png)
+![Gantt chart](output/ejemplo1/output_gantt.png)
 
-*Diagrama de Gantt de la iteración óptima: rojo = actividad crítica, azul = no crítica.*
+*Gantt chart of the optimal iteration: red for critical activities, blue for the rest.*
 
-El informe LaTeX completo de este ejemplo está en [`output/ejemplo1/output_pert.txt`](output/ejemplo1/output_pert.txt).
+The full LaTeX report for this example lives in [`output/ejemplo1/output_pert.txt`](output/ejemplo1/output_pert.txt).
 
 ---
 
-## Requisitos del sistema
+## System requirements
 
-| Requisito | Versión | Para qué |
+| Requirement | Version | What for |
 |---|---|---|
-| **Python** | 3.12 | Intérprete del proyecto. |
-| **Graphviz** | 2.4+ | Motor de dibujo que usa `pygraphviz` para renderizar el grafo AOA. |
-| **Kaleido** | 0.2+ | Exportación de las figuras de Plotly a PNG (se instala vía `pip`). |
+| **Python** | 3.12 | The project's interpreter. |
+| **pygraphviz** | 2.0+ | Rendering the AOA graph. Wheels from version 2.0 onwards bundle Graphviz, so there is nothing to install separately. |
+| **Kaleido** | 0.2+ | Exporting the Plotly figures to PNG. Installed via `pip`. |
 
-### Instalar Graphviz
+### About Graphviz
 
-Graphviz es un binario del sistema, **no se instala con `pip`**. `pygraphviz` fallará al compilar si no está presente.
+`pygraphviz` historically required **Graphviz installed on the system** and reachable on the PATH, and failed to compile without it. Since **version 2.0** it publishes prebuilt wheels for Windows, macOS and Linux that already bundle Graphviz, so `pip install -r requirements.txt` is all it takes and nothing else needs installing.
 
 <details>
-<summary><strong>Windows</strong></summary>
+<summary><strong>If pip has to build pygraphviz from source</strong></summary>
+
+This happens on platforms with no wheel available, or if a version earlier than 2.0 is pinned. In that case Graphviz and a C compiler are genuinely required:
+
+| Requirement | Minimum version |
+|---|---|
+| Graphviz | 2.46 |
+| C/C++ compiler | — |
 
 ```powershell
 winget install graphviz
 ```
 
-O descargando el instalador desde [graphviz.org/download](https://graphviz.org/download/). Importante: marcar la opción **Add Graphviz to the system PATH** durante la instalación.
-
-Si `pip install pygraphviz` sigue fallando, hay que indicarle dónde está Graphviz. Ver las [instrucciones oficiales para Windows](https://pygraphviz.github.io/documentation/stable/install.html#windows).
-
-</details>
-
-<details>
-<summary><strong>macOS</strong></summary>
-
 ```bash
 brew install graphviz
 ```
-
-</details>
-
-<details>
-<summary><strong>Linux (Debian/Ubuntu)</strong></summary>
 
 ```bash
 sudo apt-get install graphviz graphviz-dev
 ```
 
-</details>
-
-Verificar que quedó accesible:
+Check that it ended up reachable:
 
 ```bash
 dot -V
 ```
 
+The [official pygraphviz instructions](https://pygraphviz.github.io/documentation/stable/install.html) cover how to point it at Graphviz if it still fails.
+
+</details>
+
 ---
 
-## Instalación
+## Installation
 
-### 1. Clonar el repositorio
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/LuciaCero/CPM-Extremo.git
 ```
 
-### 2. Crear el entorno virtual
+### 2. Create the virtual environment
 
-En Windows, si hay varias versiones de Python instaladas, conviene forzar la 3.12:
+On Windows, if you have several Python versions installed, it is worth forcing 3.12:
 
 ```powershell
 py -3.12 -m venv venv
@@ -131,36 +129,36 @@ py -3.12 -m venv venv
 venv\Scripts\Activate.ps1
 ```
 
-En macOS o Linux:
+On macOS or Linux:
 
 ```bash
 python3.12 -m venv venv && source venv/bin/activate
 ```
 
-### 3. Instalar dependencias
+### 3. Install the dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Instalar el proyecto
+### 4. Install the project
 
-Recomendado: instalación editable. Registra el comando `cpm-extremo` y resuelve los imports sin tener que tocar el `PYTHONPATH`.
+Recommended: an editable install. It registers the `cpm-extremo` command and resolves the imports without having to touch `PYTHONPATH`.
 
 ```bash
 pip install -e .
 ```
 
 <details>
-<summary>Alternativa sin instalar: configurar <code>PYTHONPATH</code> a mano</summary>
+<summary>Alternative without installing: set <code>PYTHONPATH</code> by hand</summary>
 
-Desde la raíz del proyecto, en cada sesión nueva de terminal:
+From the project root, in every new terminal session:
 
 ```powershell
 $env:PYTHONPATH = "$PWD\src"
 ```
 
-En macOS o Linux:
+On macOS or Linux:
 
 ```bash
 export PYTHONPATH="$PWD/src"
@@ -170,29 +168,29 @@ export PYTHONPATH="$PWD/src"
 
 ---
 
-## Uso
+## Usage
 
 ```bash
 cpm-extremo inputs/ejemplo1.xlsx
 ```
 
-O como módulo, sin instalar el paquete:
+Or as a module, without installing the package:
 
 ```bash
 python -m cpm_extremo.main inputs/ejemplo1.xlsx
 ```
 
-El programa recibe **un único argumento**: la ruta al Excel de entrada. Los resultados se escriben en `output/<nombre_del_excel>/`, creando la carpeta si no existe y sobrescribiendo ejecuciones anteriores del mismo input.
+The program takes **a single argument**: the path to the input spreadsheet. Results are written to `output/<spreadsheet_name>/`, creating the folder if it does not exist and overwriting previous runs of the same input.
 
-### Procesar todos los ejemplos de golpe
+### Processing every example at once
 
-En Windows (PowerShell):
+On Windows (PowerShell):
 
 ```powershell
 Get-ChildItem inputs\*.xlsx | ForEach-Object { cpm-extremo $_.FullName }
 ```
 
-En macOS o Linux:
+On macOS or Linux:
 
 ```bash
 for f in inputs/*.xlsx; do cpm-extremo "$f"; done
@@ -200,133 +198,157 @@ for f in inputs/*.xlsx; do cpm-extremo "$f"; done
 
 ---
 
-## Formato del Excel de entrada
+## Input spreadsheet format
 
-El Excel debe respetar una estructura **de posiciones fijas**: el lector localiza los datos por número de fila, no por etiqueta. La forma más segura de crear un input nuevo es duplicar [`inputs/ejemplo1.xlsx`](inputs/ejemplo1.xlsx) y sobrescribir los valores.
+The spreadsheet must follow a **fixed-position layout**: the reader locates data by row number, not by label. The safest way to create a new input is to duplicate [`inputs/ejemplo1.xlsx`](inputs/ejemplo1.xlsx) and overwrite the values.
 
-La estructura completa está documentada en **[docs/FORMATO_INPUT.md](docs/FORMATO_INPUT.md)**. Resumen:
+The full structure is documented in **[docs/INPUT_FORMAT.md](docs/INPUT_FORMAT.md)**. In summary:
 
-| Fila (0-indexada) | Contenido |
+| Row (0-indexed) | Content |
 |---|---|
-| `0` | **Duración normal** (`Dn`) de cada actividad. La fila de cabecera lleva los nombres (`A`, `B`, `C`...). |
-| `1` | **Duración extrema** (`De`): mínimo técnico al que puede reducirse la actividad. |
-| `2`–`3` | Separador y cabecera de la sección de costes. |
-| `4` | **Coste normal** (`Cn`): coste de la actividad a duración normal. |
-| `5` | **Coste extremo** (`Ce`): coste de la actividad a duración extrema. |
-| `6`–`7` | Separador y cabecera de costes indirectos. |
-| `8` | **Costes indirectos** en formato `A + B·X`: primera columna el coste fijo `A`, segunda el coste diario `B`. Una celda vacía equivale a 0. |
-| `9` | Separador. |
-| `10` | Cabecera `Dependencias` más los nombres de las actividades. |
-| `11` en adelante | **Matriz de precedencias**: un `1` en la celda (fila `A`, columna `B`) significa que A es predecesora de B. Celdas vacías indican que no hay relación. |
+| `0` | **Normal duration** (`Dn`) of each activity. The header row carries the names (`A`, `B`, `C`...). |
+| `1` | **Crash duration** (`De`): the technical minimum the activity can be shortened to. |
+| `2`–`3` | Separator and header of the cost section. |
+| `4` | **Normal cost** (`Cn`): cost of the activity at its normal duration. |
+| `5` | **Crash cost** (`Ce`): cost of the activity at its crash duration. |
+| `6`–`7` | Separator and header of the indirect cost section. |
+| `8` | **Indirect costs** in `A + B·X` form: first column the fixed cost `A`, second the daily cost `B`. An empty cell counts as 0. |
+| `9` | Separator. |
+| `10` | `Dependencias` header plus the activity names. |
+| `11` onwards | **Precedence matrix**: a `1` in the cell at row `A`, column `B` means A precedes B. Empty cells mean no relation. |
 
-### Convenciones
+### Conventions
 
-- El número de actividades se deduce contando los valores no vacíos de la fila 0.
-- Los **sucesores se calculan automáticamente** invirtiendo la matriz de predecesores; no hay que declararlos.
-- Las duraciones se expresan en **días**; los costes, en **euros**.
-- Los decimales usan **punto**, no coma.
-- Las dependencias no pueden formar ciclos: el programa valida el grafo y aborta con un error si detecta uno.
+- The number of activities is derived by counting the non-empty values in row 0.
+- **Successors are computed automatically** by inverting the precedence matrix; there is no need to declare them.
+- Durations are expressed in **days**; costs, in **euros**.
+- Decimals use a **dot**, not a comma.
+- Dependencies cannot form cycles: the program validates the graph and aborts with an error if it finds one.
 
 ---
 
-## Salidas generadas
+## Generated output
 
-Cada ejecución produce cuatro archivos en `output/<nombre_del_excel>/`:
+Every run produces four files in `output/<spreadsheet_name>/`:
 
-| Archivo | Contenido |
+| File | Content |
 |---|---|
-| `output_graph.png` | Grafo AOA renderizado con Graphviz. Actividades reales en línea continua, ficticias en discontinuo gris. |
-| `output_gantt.png` | Diagrama de Gantt de la **iteración óptima**. Barras rojas para actividades críticas, azules para el resto. |
-| `output_coste-tiempo.png` | Curva coste-tiempo con el punto óptimo resaltado y anotado. Eje X invertido, con la duración decreciente. |
-| `output_pert.txt` | Informe LaTeX completo. Ver desglose abajo. |
+| `output_graph.png` | The AOA graph rendered with Graphviz. Real activities as solid lines, dummies as dashed grey ones. |
+| `output_gantt.png` | Gantt chart of the **optimal iteration**. Red bars for critical activities, blue for the rest. |
+| `output_coste-tiempo.png` | Cost-time curve with the optimum highlighted and annotated. The X axis is inverted, with duration decreasing. |
+| `output_pert.txt` | The full LaTeX report. Breakdown below. |
 
-### El informe `output_pert.txt`
+### The `output_pert.txt` report
 
-Es un documento LaTeX completo (clase `llncs`, con `tikz` y `pgfplots`) que incluye, **para cada iteración del algoritmo**:
+It is a complete LaTeX document (`llncs` class, using `tikz` and `pgfplots`) covering, **for every iteration of the algorithm**:
 
-- Tabla de datos de las actividades: `Dn`, `De`, `Cn`, `Ce`, pendientes y dependencias.
-- Parámetros de coste indirecto del proyecto.
-- Tabla Early/Last de todos los nodos, y el desarrollo simbólico de cada valor.
-- Tabla de holguras, y el desarrollo simbólico de cada `Hij`.
-- Actividades críticas y todos los caminos críticos.
-- Duración del proyecto, con la suma de cada camino crítico desarrollada.
-- Coste total, desglosado en coste directo e indirecto.
+- The activity data table: `Dn`, `De`, `Cn`, `Ce`, slopes and dependencies.
+- The project's indirect cost parameters.
+- The early/last table for every node, plus the symbolic working behind each value.
+- The float table, plus the symbolic working behind each `Hij`.
+- Critical activities and every critical path.
+- Project duration, with the sum of each critical path spelled out.
+- Total cost, broken down into direct and indirect.
 
-La iteración óptima aparece marcada explícitamente. Al final, la **curva coste-tiempo dibujada en TikZ**, lista para insertar en un documento académico.
+The optimal iteration is flagged explicitly. At the end, the **cost-time curve drawn in TikZ**, ready to drop into an academic document.
 
-#### Cómo compilarlo
+#### How to compile it
 
-El informe usa la clase **LNCS de Springer**, que **no viene incluida** en TeX Live ni en MiKTeX. Hace falta obtener `llncs.cls` por separado:
+The report uses Springer's **LNCS class**, which is **not bundled** with TeX Live or MiKTeX. You need to obtain `llncs.cls` separately:
 
-1. Descarga la clase desde [CTAN](https://ctan.org/pkg/llncs) o desde las [plantillas de Springer](https://www.springer.com/gp/computer-science/lncs/conference-proceedings-guidelines).
-2. Deja `llncs.cls` en la misma carpeta que el `.tex`.
-3. Renombra el informe a `.tex` y compila:
+1. Download the class from [CTAN](https://ctan.org/pkg/llncs) or from the [Springer templates](https://www.springer.com/gp/computer-science/lncs/conference-proceedings-guidelines).
+2. Drop `llncs.cls` in the same folder as the `.tex` file.
+3. Rename the report to `.tex` and compile:
 
 ```bash
 cp output/ejemplo1/output_pert.txt informe.tex && pdflatex informe.tex
 ```
 
-Si prefieres no descargar nada, basta con sustituir la primera línea del `.tex` por `\documentclass{article}`. El resto del documento compila sin cambios, porque no se usa ninguna funcionalidad propia de LNCS.
+If you would rather not download anything, just replace the first line of the `.tex` with a standard `article` class. The rest of the document compiles unchanged, since no LNCS-specific feature is used.
 
 ---
 
-## Estructura del proyecto
+## Running tests
+
+The test suite covers the CPM calculations and the spreadsheet reader. It needs no Graphviz and writes nothing to `output/`.
+
+```bash
+pip install -e ".[dev]"
+```
+
+```bash
+pytest
+```
+
+The reference case used across the tests is the project in `inputs/ejemplo1.xlsx`, worked out by hand: 21 days and 5750 € before crashing, an optimum of **19 days and 5650 €**, and a stop after two consecutive cost rises. There are also tests for cyclic dependencies and for a project with two simultaneous critical paths.
+
+---
+
+## Project structure
 
 ```
 CPM-Extremo/
-├── inputs/                          # Excel de entrada (8 ejemplos, de menor a mayor complejidad)
-│   ├── ejemplo1.xlsx                #   <- plantilla de referencia (4 actividades)
+├── inputs/                          # Input spreadsheets (8 examples, simplest first)
+│   ├── ejemplo1.xlsx                #   <- reference template (4 activities)
 │   ├── ejemplo2.xlsx
 │   ├── ejemplo3.xlsx
 │   ├── ejemplo4.xlsx
 │   ├── ejemplo5.xlsx
 │   ├── ejemplo6.xlsx
 │   ├── ejemplo7.xlsx
-│   └── ejemplo8.xlsx                #   <- el mas complejo (10 actividades)
+│   └── ejemplo8.xlsx                #   <- the most complex (10 activities)
 │
-├── output/                          # Resultados (una subcarpeta por input)
-│   └── <nombre_del_excel>/
+├── output/                          # Results, one subfolder per input
+│   └── <spreadsheet_name>/
 │       ├── output_graph.png
 │       ├── output_gantt.png
 │       ├── output_coste-tiempo.png
 │       └── output_pert.txt
 │
 ├── docs/
-│   ├── FORMATO_INPUT.md             # Especificación detallada del Excel
-│   └── ALGORITMO.md                 # Fundamento matemático y pseudocódigo
+│   ├── INPUT_FORMAT.md              # Detailed spreadsheet specification
+│   └── ALGORITHM.md                 # Mathematical basis and pseudocode
+│
+├── tests/                           # pytest suite
+│   ├── conftest.py                  #   Shared fixtures and reference project
+│   ├── test_algoritmo.py            #   End-to-end crashing loop
+│   ├── test_cpm_calculos.py         #   Early/last, float, critical paths, costs
+│   ├── test_grafo.py                #   AOA graph construction and validation
+│   ├── test_leer_excel.py           #   Spreadsheet reader
+│   └── test_pendientes.py           #   Cost slopes
 │
 ├── src/cpm_extremo/
-│   ├── main.py                      # Punto de entrada y orquestación
+│   ├── main.py                      # Entry point and orchestration
 │   │
-│   ├── input/                       # Lectura del Excel
-│   │   └── leer_excel.py            #   Parseo y construcción de DataFrames
+│   ├── input/                       # Spreadsheet reading
+│   │   └── leer_excel.py            #   Parsing and DataFrame construction
 │   │
-│   ├── grafo/                       # Grafo AOA (networkx.DiGraph)
-│   │   ├── constructor.py           #   Construcción y validación de ciclos
-│   │   ├── reducir.py               #   Simplificación de nodos y ficticias
-│   │   ├── actualizar.py            #   Propagación de nuevas duraciones
-│   │   └── info.py                  #   Volcado de nodos y actividades a DataFrame
+│   ├── grafo/                       # AOA graph (networkx.DiGraph)
+│   │   ├── constructor.py           #   Construction and cycle validation
+│   │   ├── reducir.py               #   Node and dummy simplification
+│   │   ├── actualizar.py            #   Propagating new durations
+│   │   └── info.py                  #   Dumping nodes and activities to DataFrames
 │   │
-│   ├── cpm/                         # Lógica del método
-│   │   ├── algoritmo.py             #   Bucle principal del CPM extremo
-│   │   ├── estado.py                #   Estado inicial (duraciones y costes)
-│   │   ├── early_last.py            #   Early y Last por orden topológico
+│   ├── cpm/                         # The method itself
+│   │   ├── algoritmo.py             #   Main crashing loop
+│   │   ├── estado.py                #   Initial state (durations and costs)
+│   │   ├── early_last.py            #   Early and last in topological order
 │   │   ├── holguras.py              #   Hij = Lj - Ei - Dij
-│   │   ├── camino_critico.py        #   Actividades y caminos críticos
-│   │   ├── duracion.py              #   Duración del proyecto
-│   │   ├── costes.py                #   Coste directo e indirecto
-│   │   ├── pendientes.py            #   Pendiente = (Ce - Cn) / (Dn - De)
-│   │   └── reduccion_actividades.py #   Reducción de 1 día con validación
+│   │   ├── camino_critico.py        #   Critical activities and paths
+│   │   ├── duracion.py              #   Project duration
+│   │   ├── costes.py                #   Direct and indirect cost
+│   │   ├── pendientes.py            #   Slope = (Ce - Cn) / (Dn - De)
+│   │   └── reduccion_actividades.py #   Validated one-day crash
 │   │
-│   ├── output/                      # Generación de resultados
+│   ├── output/                      # Result generation
 │   │   ├── grafo_png.py             #   Graphviz
 │   │   ├── gantt_png.py             #   Plotly
 │   │   ├── coste_tiempo_png.py      #   Matplotlib
-│   │   ├── latex_informe.py         #   Informe LaTeX
-│   │   └── filesystem.py            #   Gestión de carpetas y rutas
+│   │   ├── latex_informe.py         #   LaTeX report
+│   │   └── filesystem.py            #   Folder and path handling
 │   │
 │   └── shared/
-│       └── globales.py              # Registro de los detalles simbólicos de cada cálculo
+│       └── globales.py              # Symbolic traces of every calculation
 │
 ├── pyproject.toml
 ├── requirements.txt
@@ -336,63 +358,63 @@ CPM-Extremo/
 
 ---
 
-## Cómo funciona el algoritmo
+## How the algorithm works
 
-Explicación completa y pseudocódigo en **[docs/ALGORITMO.md](docs/ALGORITMO.md)**. En resumen:
+Full explanation and pseudocode in **[docs/ALGORITHM.md](docs/ALGORITHM.md)**. In summary:
 
 ```
-1. Construir el grafo AOA y simplificarlo.
-2. Estado inicial: cada actividad a su duración y coste normales (Dn, Cn).
-3. Calcular la pendiente de coste de cada actividad:
-       pendiente = (Ce - Cn) / (Dn - De)
-   Infinita si Dn = De, es decir, si la actividad no admite reducción.
+1. Build the AOA graph and simplify it.
+2. Initial state: every activity at its normal duration and cost (Dn, Cn).
+3. Compute the cost slope of each activity:
+       slope = (Ce - Cn) / (Dn - De)
+   Infinite if Dn = De, that is, if the activity cannot be crashed.
 
-4. REPETIR:
-     a. Calcular Early y Last de cada nodo, en orden topológico.
-     b. Calcular holguras: Hij = Lj - Ei - Dij.  Es crítica si Hij = 0.
-     c. Obtener los caminos críticos y la duración del proyecto.
-     d. Calcular el coste total:
-            C_total = suma de costes de actividades + (C_fijo + duración * C_diario)
-     e. Registrar la iteración en el historial coste-tiempo.
-     f. Si el coste ha subido dos veces consecutivas, PARAR.
-     g. Elegir la actividad crítica reducible de MENOR pendiente.
-        Si no hay ninguna, PARAR.
-     h. Reducir su duración en 1 día; su coste aumenta en el valor de su pendiente.
-        Si la reducción no es válida, marcar la actividad como no reducible
-        y volver a intentarlo con otra.
-     i. Propagar las nuevas duraciones al grafo.
+4. REPEAT:
+     a. Compute early and last for every node, in topological order.
+     b. Compute float: Hij = Lj - Ei - Dij.  Critical if Hij = 0.
+     c. Find the critical paths and the project duration.
+     d. Compute the total cost:
+            total = sum of activity costs + (fixed cost + duration * daily cost)
+     e. Record the iteration in the cost-time history.
+     f. If the cost has risen twice in a row, STOP.
+     g. Pick the crashable critical activity with the LOWEST slope.
+        If there is none, STOP.
+     h. Cut one day off its duration; its cost rises by the value of its slope.
+        If the crash turns out invalid, flag the activity as non-crashable
+        and try again with another one.
+     i. Propagate the new durations to the graph.
 
-5. El óptimo es la iteración de coste total mínimo.
+5. The optimum is the iteration with the minimum total cost.
 ```
 
-### Criterios de parada
+### Stopping criteria
 
-El bucle termina por una de dos condiciones:
+The loop ends on one of two conditions:
 
-1. **Dos subidas consecutivas de coste.** Una vez pasado el mínimo, el algoritmo continúa dos iteraciones más para que la curva coste-tiempo muestre con claridad la rama ascendente.
-2. **No quedan actividades críticas reducibles**, porque todas están ya a su duración extrema o se marcaron como no reducibles.
+1. **Two consecutive cost rises.** Past the minimum, the algorithm carries on for two more iterations so the cost-time curve clearly shows its rising branch.
+2. **No crashable critical activities are left**, because they are all at their crash duration already or were flagged as non-crashable.
 
-### Por qué el óptimo no es siempre el proyecto más corto
+### Why the optimum is not always the shortest project
 
-Acortar una actividad **aumenta** su coste directo, porque hay que pagar más recursos, pero **reduce** el coste indirecto, porque hay menos días de estructura, alquileres y supervisión. El coste total es la suma de ambos, así que describe una curva en U: baja mientras el ahorro en indirectos supera al sobrecoste en directos, y sube en cuanto se invierte esa relación. El punto óptimo es el fondo de la U.
+Shortening an activity **raises** its direct cost, since more resources have to be paid for, but **lowers** the indirect cost, since there are fewer days of overhead, rent and supervision. Total cost is the sum of both, so it traces a U: it falls while the savings on indirect costs outweigh the premium on direct ones, and rises as soon as that relationship flips. The optimum is the bottom of the U.
 
 ---
 
-## Notas y limitaciones
+## Notes and limitations
 
-- **Las reducciones son de 1 día por iteración.** No se implementa reducción fraccionaria ni por bloques.
-- **El camino crítico puede cambiar entre iteraciones**, e incluso puede haber varios simultáneos. El algoritmo lo recalcula desde cero en cada paso, por lo que lo gestiona correctamente.
-- **Empates de pendiente:** si dos actividades críticas tienen la misma pendiente mínima, se elige la primera en el orden del DataFrame. Es una decisión arbitraria, pero determinista.
-- **Iteraciones extra tras el óptimo:** el historial incluye dos iteraciones más allá del mínimo. Están ahí a propósito, para completar la curva; no son un fallo de convergencia.
-- **El formato del Excel es rígido**, con posiciones de fila fijas. Un input mal alineado no produce un error claro, sino resultados incorrectos. Conviene partir siempre del fichero de ejemplo.
-- **El grafo AOA no es único.** Distintas construcciones válidas, con distinto número de actividades ficticias, pueden representar el mismo proyecto. Los valores de Early, Last, holguras y duración no cambian, pero la numeración de nodos sí puede diferir de la de una solución hecha a mano.
+- **Crashing happens one day per iteration.** No fractional or block crashing is implemented.
+- **The critical path can change between iterations**, and there may be several at once. The algorithm recomputes it from scratch at every step, so it handles this correctly.
+- **Slope ties:** if two critical activities share the lowest slope, the first one in DataFrame order wins. Arbitrary, but deterministic.
+- **Extra iterations past the optimum:** the history includes two iterations beyond the minimum. They are there on purpose, to complete the curve; they are not a convergence bug.
+- **The spreadsheet layout is rigid**, with fixed row positions. A misaligned input does not raise a clear error, it produces wrong results. Always start from the sample file.
+- **The AOA graph is not unique.** Different valid constructions, with different numbers of dummy activities, can represent the same project. Early, last, float and duration do not change, but the node numbering may not match a solution worked out by hand.
 
-### Sobre los datos de `inputs/`
+### About the data in `inputs/`
 
-Los ficheros de `inputs/` contienen datos **completamente ficticios** procedentes de ejercicios de clase. Están incluidos únicamente como ejemplos del formato de entrada y para poder reproducir las salidas del repositorio. No recogen información real de ningún proyecto, empresa ni persona.
+The files in `inputs/` hold **entirely fictional** data taken from classroom exercises. They are included purely as examples of the input format and so the repository's output can be reproduced. They record no real information about any project, company or person.
 
 ---
 
-## Licencia
+## License
 
-Distribuido bajo licencia MIT. Ver [LICENSE](LICENSE) para el texto completo.
+Released under the MIT License. See [LICENSE](LICENSE) for the full text.

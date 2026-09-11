@@ -28,12 +28,18 @@ dependencies = [
     "matplotlib>=3.8",
     "plotly>=5.20",
     "kaleido>=0.2",
-    "pygraphviz>=1.12",
+    "pygraphviz>=2.0",
     "python-dotenv>=1.0",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
 [project.scripts]
 cpm-extremo = "cpm_extremo.main:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
