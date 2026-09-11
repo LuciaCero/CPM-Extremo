@@ -3,34 +3,41 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "**.md"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "**.md"
   workflow_dispatch:
 
 jobs:
-  smoke-test:
-    name: Ejecutar el ejemplo de referencia
+  test:
+    name: Tests and smoke run
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Instalar Graphviz
+      - name: Install Graphviz
         run: sudo apt-get update && sudo apt-get install -y graphviz graphviz-dev
 
-      - name: Configurar Python 3.12
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
 
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install -e .
+          pip install -e ".[dev]"
 
-      - name: Ejecutar el CPM extremo sobre todos los inputs
+      - name: Run the test suite
+        run: pytest -v
+
+      - name: Smoke test — run the CLI on every input
         run: |
           for f in inputs/*.xlsx; do
             echo "::group::$f"
@@ -38,24 +45,24 @@ jobs:
             echo "::endgroup::"
           done
 
-      - name: Comprobar que se generaron las cuatro salidas de cada input
+      - name: Check that every input produced its four output files
         run: |
-          estado=0
+          status=0
           for f in inputs/*.xlsx; do
-            nombre=$(basename "$f" .xlsx)
-            for salida in output_graph.png output_gantt.png output_coste-tiempo.png output_pert.txt; do
-              ruta="output/$nombre/$salida"
-              if [ ! -s "$ruta" ]; then
-                echo "FALTA o está vacío: $ruta"
-                estado=1
+            name=$(basename "$f" .xlsx)
+            for artifact in output_graph.png output_gantt.png output_coste-tiempo.png output_pert.txt; do
+              path="output/$name/$artifact"
+              if [ ! -s "$path" ]; then
+                echo "Missing or empty: $path"
+                status=1
               fi
             done
           done
-          exit $estado
+          exit $status
 
-      - name: Publicar las salidas generadas
+      - name: Upload the generated outputs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: salidas-cpm
+          name: cpm-outputs
           path: output/
